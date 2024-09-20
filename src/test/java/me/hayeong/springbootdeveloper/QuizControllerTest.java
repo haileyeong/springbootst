@@ -1,24 +1,21 @@
 package me.hayeong.springbootdeveloper;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.annotation.JsonAppend.Attr;
-import java.awt.PageAttributes.MediaType;
+import me.hayeong.springbootdeveloper.QuizController.Code;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -63,5 +60,37 @@ class QuizControllerTest {
     result.andExpect(status().isBadRequest()).andExpect(content().string("Bad Request!"));
   }
 
+  @DisplayName("quiz(): POST /quiz?code=1 이면 응답 코드는 403, 응답 본문은 Forbidden!를 리턴한다.")
+  @Test
+  public void postQuiz1() throws Exception {
+    // give
+    String url = "/quiz";
 
+    // when
+    final ResultActions result =
+        mockMvc.perform(
+            post(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objcetmapper.writeValueAsString(new Code(1))));
+
+    // then
+    result.andExpect(status().isForbidden()).andExpect(content().string("Forbidden!"));
+  }
+
+  @DisplayName("quiz(): POST /quiz?code=13 이면 응답 코드는 200, 응답 본문은 OK!를 리턴한다.")
+  @Test
+  public void postQuiz2() throws Exception {
+    // given
+    String url = "/quiz";
+
+    // when
+    ResultActions result =
+        mockMvc.perform(
+            post(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objcetmapper.writeValueAsString(new Code(13))));
+
+    // then
+    result.andExpect(status().isOk()).andExpect(content().string("OK!"));
+  }
 }
